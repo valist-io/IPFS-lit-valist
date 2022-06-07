@@ -19,25 +19,6 @@ const accessControlConditions = [
   }
 ]
 
-const hexStringToArrayBuffer = (hexString) => {
-  hexString = hexString.replace(/^0x/, '');
-  if (hexString.length % 2 !== 0) {
-    // eslint-disable-next-line no-console
-    console.log('WARNING: expecting an even number of characters in the hexString');
-  }
-  const bad = hexString.match(/[G-Z\s]/i);
-  if (bad) {
-    // eslint-disable-next-line no-console
-    console.log('WARNING: found non-hex characters', bad);
-  }
-  const pairs = hexString.match(/[\dA-F]{2}/gi);
-  const integers = pairs.map(function (s) {
-    return parseInt(s, 16);
-  });
-  const array = new Uint8Array(integers);
-  return array.buffer;
-}
-
 class Lit {
   litNodeClient
 
@@ -54,8 +35,8 @@ class Lit {
     //const fileAsArrayBuffer = new Blob([file.buffer]);
     //console.log('File Array Buffer: ', fileAsArrayBuffer);
     //console.log('array buffer: ', fileAsArrayBuffer.arrayBuffer());
-
-    const { encryptedFile, symmetricKey } = await LitJsSdk.encryptString(str)
+    // const fileInBase64 = btoa(str);
+    const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(str)
 
     const encryptedSymmetricKey = await this.litNodeClient.saveEncryptionKey({
       accessControlConditions,
@@ -64,8 +45,10 @@ class Lit {
       chain,
     })
 
+    // const encryptedStringInDataURI = await blobToDataURI(encryptedString);
+
     return {
-      encryptedFile: await encryptedFile.arrayBuffer(),
+      encryptedFile: encryptedString,
       encryptedSymmetricKey: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, "base16")
     }
   }
@@ -82,7 +65,7 @@ class Lit {
       authSig
     })
     const decryptedFile = await LitJsSdk.decryptString(
-      new Blob([hexStringToArrayBuffer(encryptedStr)]),
+      encryptedStr,
       symmetricKey
     );
     // eslint-disable-next-line no-console

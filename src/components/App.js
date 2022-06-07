@@ -1,27 +1,15 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { create } from "ipfs-http-client";
 import lit from "../lib/lit";
 
 const client = create("https://ipfs.infura.io:5001/api/v0");
 
-const decrypt = (encryptedUrlArr, encryptedKeyArr) => {
-  if (encryptedKeyArr.length === 0 || encryptedUrlArr.length === 0) {
-    return <h3>Upload data</h3>;
-  }
-  const decryptFiles = Promise.all(encryptedUrlArr.map((url, idx) => {
-    return lit.decryptFile(url, encryptedKeyArr[idx]);
-  }));
-
-  console.log('decrypted files: ', decryptFiles);
-  return ( decryptFiles.map((el) => <img src={el} alt="nfts" />)
-  );
-}
-
 const App = () => {
   const [file, setFile] = useState(null);
   const [encryptedUrlArr, setEncryptedUrlArr] = useState([]);
   const [encryptedKeyArr, setEncryptedKeyArr] = useState([]);
+  const [decryptedFileArr, setDecryptedFileArr] = useState([]);
 
   const retrieveFile = (e) => {
     const data = e.target.files[0];
@@ -30,10 +18,19 @@ const App = () => {
 
     reader.onloadend = () => {
       setFile(Buffer(reader.result));
-      //setFile(data);
     };
 
     e.preventDefault();
+  };
+
+  const decrypt = (encryptedUrlArr, encryptedKeyArr) => {
+    Promise.all(encryptedUrlArr.map((url, idx) => {
+      return lit.decryptString(url, encryptedKeyArr[idx]);
+    })).then((values) => {
+      setDecryptedFileArr(values.map((v) => {
+        return v.decryptedFile;
+      }));
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -41,30 +38,22 @@ const App = () => {
 
     try {
       const created = await client.add(file);
-      console.log('created: ', created);
-      //const uploadEncrypted = await client.add(encrypted.encryptedFile);
-      //const encryptedUrl = `https://ipfs.infura.io/ipfs/${uploadEncrypted.path}`;
-      //const url = `https://ipfs.infura.io/ipfs/${created.path}`;
+      const url = `https://ipfs.infura.io/ipfs/${created.path}`;
 
-      // IPFS link to an image
-      const url = 'https://bafybeiacvhcnqgorzkpodqyt4m7266yi7fucyhj6iso2atknhyftncfoaa.ipfs.infura-ipfs.io/';
       const encrypted = await lit.encryptString(url);
-
-      console.log('encrypted file: ', encrypted);
-
+      
       setEncryptedUrlArr((prev) => [...prev, encrypted.encryptedFile]);
       setEncryptedKeyArr((prev) => [...prev, encrypted.encryptedSymmetricKey]);
     } catch (error) {
       console.log(error.message);
     }
   };
-  console.log('encrypted urls', encryptedUrlArr);
-  console.log('encrypted keys', encryptedKeyArr);
-  try {
-    decrypt(encryptedUrlArr, encryptedKeyArr);
-  } catch (error) {
-    console.log(error.message);
-  };
+
+  useEffect(() => {
+    if (encryptedUrlArr.length !== 0) {
+      decrypt(encryptedUrlArr, encryptedKeyArr);
+    }
+  });
 
   return (
     <div className="App">
@@ -78,7 +67,8 @@ const App = () => {
       </div>
 
       <div className="display">
-        {decrypt(encryptedUrlArr, encryptedKeyArr)}
+        {decryptedFileArr.length !== 0
+          ? decryptedFileArr.map((el) => <img src={el} alt="nfts" />) : <h3>Upload data</h3>}
       </div>
     </div>
   );
