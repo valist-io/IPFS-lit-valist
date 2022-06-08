@@ -2,7 +2,10 @@ import * as LitJsSdk from "lit-js-sdk";
 
 const client = new LitJsSdk.LitNodeClient()
 const chain = 'ethereum'
-const accessControlConditions = [
+
+/** 
+ * Access control for a wallet with > 0.00001 ETH
+ * const accessControlConditionsETHBalance = [
   {
     contractAddress: '',
     standardContractType: '',
@@ -18,6 +21,24 @@ const accessControlConditions = [
     }
   }
 ]
+ */
+
+// Must hold at least one Monster Suit NFT (https://opensea.io/collection/monster-suit)
+const accessControlConditionsNFT = [
+    {
+      contractAddress: '0xabdfb84dae7923dd346d5b1a0c6fbbb0e6e5df64',
+      standardContractType: 'ERC721',
+      chain,
+      method: 'balanceOf',
+      parameters: [
+        ':userAddress'
+      ],
+      returnValueTest: {
+        comparator: '>',
+        value: '0'
+      }
+    }
+  ]
 
 class Lit {
   litNodeClient
@@ -32,20 +53,14 @@ class Lit {
       await this.connect()
     }
     const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
-    //const fileAsArrayBuffer = new Blob([file.buffer]);
-    //console.log('File Array Buffer: ', fileAsArrayBuffer);
-    //console.log('array buffer: ', fileAsArrayBuffer.arrayBuffer());
-    // const fileInBase64 = btoa(str);
     const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(str)
 
     const encryptedSymmetricKey = await this.litNodeClient.saveEncryptionKey({
-      accessControlConditions,
+      accessControlConditions: accessControlConditionsNFT,
       symmetricKey,
       authSig,
       chain,
     })
-
-    // const encryptedStringInDataURI = await blobToDataURI(encryptedString);
 
     return {
       encryptedFile: encryptedString,
@@ -59,7 +74,7 @@ class Lit {
     }
     const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
     const symmetricKey = await this.litNodeClient.getEncryptionKey({
-      accessControlConditions,
+      accessControlConditions: accessControlConditionsNFT,
       toDecrypt: encryptedSymmetricKey,
       chain,
       authSig

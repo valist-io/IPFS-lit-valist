@@ -5,13 +5,13 @@ import lit from "../lib/lit";
 
 const client = create("https://ipfs.infura.io:5001/api/v0");
 
-const App = () => {
+function App() {
   const [file, setFile] = useState(null);
   const [encryptedUrlArr, setEncryptedUrlArr] = useState([]);
   const [encryptedKeyArr, setEncryptedKeyArr] = useState([]);
   const [decryptedFileArr, setDecryptedFileArr] = useState([]);
 
-  const retrieveFile = (e) => {
+  function retrieveFile(e) {
     const data = e.target.files[0];
     const reader = new window.FileReader();
     reader.readAsArrayBuffer(data);
@@ -21,9 +21,9 @@ const App = () => {
     };
 
     e.preventDefault();
-  };
+  }
 
-  const decrypt = (encryptedUrlArr, encryptedKeyArr) => {
+  function decrypt() {
     Promise.all(encryptedUrlArr.map((url, idx) => {
       return lit.decryptString(url, encryptedKeyArr[idx]);
     })).then((values) => {
@@ -31,9 +31,9 @@ const App = () => {
         return v.decryptedFile;
       }));
     });
-  };
+  }
 
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     try {
@@ -41,13 +41,13 @@ const App = () => {
       const url = `https://ipfs.infura.io/ipfs/${created.path}`;
 
       const encrypted = await lit.encryptString(url);
-      
+
       setEncryptedUrlArr((prev) => [...prev, encrypted.encryptedFile]);
       setEncryptedKeyArr((prev) => [...prev, encrypted.encryptedSymmetricKey]);
     } catch (error) {
       console.log(error.message);
     }
-  };
+  }
 
   useEffect(() => {
     if (encryptedUrlArr.length !== 0) {
@@ -72,6 +72,6 @@ const App = () => {
       </div>
     </div>
   );
-};
+}
 
 export default App;
