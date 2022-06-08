@@ -2,6 +2,7 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import { create } from "ipfs-http-client";
 import lit from "../lib/lit";
+import Header from "./Header";
 
 const client = create("https://ipfs.infura.io:5001/api/v0");
 
@@ -57,7 +58,9 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">IPFS + Lit</header>
+      <Header
+        title="Here's an example of how to use Lit with IPFS"
+      />
 
       <div className="main">
         <form onSubmit={handleSubmit}>
