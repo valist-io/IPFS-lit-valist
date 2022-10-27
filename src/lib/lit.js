@@ -26,7 +26,7 @@ const chain = 'ethereum'
 // Must hold at least one Monster Suit NFT (https://opensea.io/collection/monster-suit)
 const accessControlConditionsNFT = [
     {
-      contractAddress: '0xabdfb84dae7923dd346d5b1a0c6fbbb0e6e5df64',
+      contractAddress: '0x89b597199dac806ceecfc091e56044d34e59985c',
       standardContractType: 'ERC721',
       chain,
       method: 'balanceOf',

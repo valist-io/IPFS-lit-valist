@@ -1,10 +1,24 @@
 import "./App.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { create } from "ipfs-http-client";
 import lit from "../lib/lit";
 import Header from "./Header";
 
-const client = create("https://ipfs.infura.io:5001/api/v0");
+const projectId = '';   // <---------- your Infura Project ID
+
+const projectSecret = '';  // <---------- your Infura Secret
+// (for security concerns, consider saving these values in .env files)
+
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
+
+const client = create({
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth,
+    },
+});
 
 function App() {
   const [file, setFile] = useState(null);
@@ -25,13 +39,15 @@ function App() {
   }
 
   function decrypt() {
-    Promise.all(encryptedUrlArr.map((url, idx) => {
-      return lit.decryptString(url, encryptedKeyArr[idx]);
-    })).then((values) => {
-      setDecryptedFileArr(values.map((v) => {
-        return v.decryptedFile;
-      }));
-    });
+    if (encryptedUrlArr.length !== 0) {
+      Promise.all(encryptedUrlArr.map((url, idx) => {
+        return lit.decryptString(url, encryptedKeyArr[idx]);
+      })).then((values) => {
+        setDecryptedFileArr(values.map((v) => {
+          return v.decryptedFile;
+        }));
+      });
+    }
   }
 
   async function handleSubmit(e) {
@@ -39,9 +55,11 @@ function App() {
 
     try {
       const created = await client.add(file);
-      const url = `https://ipfs.infura.io/ipfs/${created.path}`;
+      const url = `https://infura-ipfs.io/ipfs/${created.path}`;
 
       const encrypted = await lit.encryptString(url);
+      console.log('IPFS URL: ', url);
+      console.log('Encrypted String: ', encrypted.encryptedFile);
 
       setEncryptedUrlArr((prev) => [...prev, encrypted.encryptedFile]);
       setEncryptedKeyArr((prev) => [...prev, encrypted.encryptedSymmetricKey]);
@@ -49,12 +67,6 @@ function App() {
       console.log(error.message);
     }
   }
-
-  useEffect(() => {
-    if (encryptedUrlArr.length !== 0) {
-      decrypt(encryptedUrlArr, encryptedKeyArr);
-    }
-  });
 
   return (
     <div className="App">
@@ -68,10 +80,12 @@ function App() {
           <button type="submit" className="button">Submit</button>
         </form>
       </div>
-
-      <div className="display">
-        {decryptedFileArr.length !== 0
-          ? decryptedFileArr.map((el) => <img src={el} alt="nfts" />) : <h3>Upload data</h3>}
+      <div>
+        <button className="button" onClick={decrypt}>Decrypt</button>
+        <div className="display">
+          {decryptedFileArr.length !== 0
+            ? decryptedFileArr.map((el) => <img src={el} alt="nfts" />) : <h3>Upload data, please! </h3>}
+        </div>
       </div>
     </div>
   );

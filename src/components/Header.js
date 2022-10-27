@@ -1,15 +1,8 @@
-import { LitLogo } from '@websaam/ui';
-
 const Header = ({title}) => {
     return (
         <>
             <div>
-                <LitLogo
-                cursorPointer={true}
-                onClick={() => {console.log();}}
-                title="Lit Protocol"
-                subtitle="x IPFS Example"
-                />
+                <img src="litLogo.png" alt="Lit Logo"/>
             </div>
 
             <h1>
