@@ -1,4 +1,4 @@
-# Example App using IPFS and Lit
+# Unlockable Content with IPFS x Lit
 
 ![Image for application](/public/UnlockableContent.png)
 To show how to use Lit, we’ll build a DApp with a React frontend. The DApp connects to [IPFS (InterPlanetary File System)](https://docs.ipfs.tech/concepts/what-is-ipfs/) to upload files, stores the Lit encrypted IPFS content identifier (CID) to the application’s state, and decrypts the CID to display the uploaded file. The access control conditions for encrypting and decrypting the file will be whether or not the connected wallet holds a [Monster Suit NFT](https://opensea.io/collection/monster-suit).
