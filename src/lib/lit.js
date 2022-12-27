@@ -1,7 +1,7 @@
 import * as LitJsSdk from "lit-js-sdk";
 
 const client = new LitJsSdk.LitNodeClient()
-const chain = 'ethereum'
+const chain = 'polygon'
 
 /** 
  * Access control for a wallet with > 0.00001 ETH
@@ -21,24 +21,25 @@ const chain = 'ethereum'
     }
   }
 ]
- */
+*/
 
-// Must hold at least one Monster Suit NFT (https://opensea.io/collection/monster-suit)
+// Must hold at least one Phaser Example NFT (https://opensea.io/collection/monster-suit)
 const accessControlConditionsNFT = [
-    {
-      contractAddress: '0x89b597199dac806ceecfc091e56044d34e59985c',
-      standardContractType: 'ERC721',
-      chain,
-      method: 'balanceOf',
-      parameters: [
-        ':userAddress'
-      ],
-      returnValueTest: {
-        comparator: '>',
-        value: '0'
-      }
+  {
+    contractAddress: '0x3cE643dc61bb40bB0557316539f4A93016051b81',
+    standardContractType: 'ERC1155',
+    chain,
+    method: 'balanceOf',
+    parameters: [
+      ':userAddress',
+      '53563567764803420951281129110168443582384234877836211166404318576799346144976',
+    ],
+    returnValueTest: {
+      comparator: '>',
+      value: '0'
     }
-  ]
+  }
+]
 
 class Lit {
   litNodeClient

@@ -4,21 +4,7 @@ import { create } from "ipfs-http-client";
 import lit from "../lib/lit";
 import Header from "./Header";
 
-const projectId = '';   // <---------- your Infura Project ID
-
-const projectSecret = '';  // <---------- your Infura Secret
-// (for security concerns, consider saving these values in .env files)
-
-const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
-
-const client = create({
-    host: 'ipfs.infura.io',
-    port: 5001,
-    protocol: 'https',
-    headers: {
-        authorization: auth,
-    },
-});
+const client = create('https://pin.valist.io');
 
 function App() {
   const [file, setFile] = useState(null);
@@ -55,7 +41,7 @@ function App() {
 
     try {
       const created = await client.add(file);
-      const url = `https://infura-ipfs.io/ipfs/${created.path}`;
+      const url = `https://gateway.valist.io/ipfs/${created.path}`;
 
       const encrypted = await lit.encryptString(url);
       console.log('IPFS URL: ', url);
